@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Online School Base Assessment System</title>
+    <title>MTTC Practice Primary</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         // Check for dark mode preference
@@ -621,6 +622,7 @@
         .form-group {
             margin-bottom: 20px;
             position: relative;
+            transition: all 0.3s ease;
         }
         
         .form-group label {
@@ -836,6 +838,23 @@
         .role-indicator.teacher {
             background-color: #2ecc71;
         }
+
+        /* Role Selection Info */
+        .role-info {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid #3498db;
+            color: #3498db;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .dark .role-info {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
         
         /* Media Queries for larger screens */
         @media (min-width: 768px) {
@@ -1004,36 +1023,39 @@
             </div>
             <div class="login-header">
                 <img src="https://imgur.com/pd0P4zq.png" alt="Login Logo">
-                <h2>Welcome To Class D</h2>
-                <p>Sign in to access your account</p>
+                <h2>Welcome To Welcome To Class D</h2>
+                <p>Choose your access level</p>
             </div>
             <div class="login-error" id="loginError">
-                Invalid username or password. Please try again.
+                Invalid credentials. Please try again.
+            </div>
+            <div class="role-info" id="roleInfo">
+                <!-- Dynamic info based on role selection -->
             </div>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
-                    <span class="form-icon">👤</span>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                    <span class="form-icon">🔒</span>
-                </div>
-                <div class="form-group">
-                    <label for="role">Role</label>
+                    <label for="role">Select Login Type</label>
                     <select id="role" name="role" required>
-                        <option value="">Select your role</option>
-                        <option value="admin">Administrator</option>
-                        <option value="teacher">Teacher</option>
+                        <option value="">Choose your role</option>
+                        <option value="teacher">Teacher (Quick Access)</option>
+                        <option value="admin">Administrator (Secure Login)</option>
                     </select>
                     <span class="form-icon">👥</span>
+                </div>
+                <div class="form-group" id="usernameGroup" style="display: none;">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username">
+                    <span class="form-icon">👤</span>
+                </div>
+                <div class="form-group" id="passwordGroup" style="display: none;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password">
+                    <span class="form-icon">🔒</span>
                 </div>
                 <button type="submit" class="login-btn" id="loginButton">
                     Sign In
                 </button>
-                <div class="login-options">
+                <div class="login-options" id="loginOptions" style="display: none;">
                     <div class="form-check">
                         <input type="checkbox" id="remember" name="remember">
                         <label for="remember">Remember me</label>
@@ -1077,9 +1099,9 @@
         <div id="homePage" class="hero-section">
             <div class="magic-background"></div>
             <div class="logo-container">
-                <img src="https://i.imgur.com/l9dDRok.png" alt="Main Logo" class="main-logo">
+                <img src="https://imgur.com/N0sEqK0.png" alt="Main Logo" class="main-logo">
             </div>
-            <h1>Online School Base Assessment System</h1>
+            <h1>MTTC Practice Primary</h1>
             <p>A comprehensive platform designed to streamline academic administration, track student performance, and generate insightful reports.</p>
             
             <div class="quick-links">
@@ -1149,6 +1171,13 @@
             const roleIndicator = document.getElementById('roleIndicator');
             const logoutBtn = document.getElementById('logoutBtn');
             const adminOnlyElements = document.querySelectorAll('.admin-only');
+            const roleSelect = document.getElementById('role');
+            const usernameGroup = document.getElementById('usernameGroup');
+            const passwordGroup = document.getElementById('passwordGroup');
+            const loginOptions = document.getElementById('loginOptions');
+            const roleInfo = document.getElementById('roleInfo');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
             
             let currentUserRole = null;
             
@@ -1160,19 +1189,102 @@
             content.style.display = 'none';
             toggleBtn.style.display = 'none';
             footer.style.display = 'none';
+
+            // Role selection handler
+            roleSelect.addEventListener('change', function() {
+                const selectedRole = this.value;
+                
+                // Hide error and info messages
+                loginError.style.display = 'none';
+                roleInfo.style.display = 'none';
+                
+                if (selectedRole === 'teacher') {
+                    // Teacher - Quick Access (no credentials needed)
+                    usernameGroup.style.display = 'none';
+                    passwordGroup.style.display = 'none';
+                    loginOptions.style.display = 'none';
+                    
+                    // Remove required attributes
+                    usernameInput.removeAttribute('required');
+                    passwordInput.removeAttribute('required');
+                    
+                    // Show info about teacher access
+                    roleInfo.innerHTML = '✅ Teacher access allows quick entry to view student data and generate reports.';
+                    roleInfo.style.display = 'block';
+                    
+                } else if (selectedRole === 'admin') {
+                    // Admin - Secure Login (credentials required)
+                    usernameGroup.style.display = 'block';
+                    passwordGroup.style.display = 'block';
+                    loginOptions.style.display = 'flex';
+                    
+                    // Add required attributes
+                    usernameInput.setAttribute('required', 'required');
+                    passwordInput.setAttribute('required', 'required');
+                    
+                    // Show info about admin access
+                    roleInfo.innerHTML = '🔐 Administrator access requires secure authentication for full system privileges.';
+                    roleInfo.style.display = 'block';
+                    
+                    // Focus on username field
+                    setTimeout(() => {
+                        usernameInput.focus();
+                    }, 300);
+                } else {
+                    // No role selected
+                    usernameGroup.style.display = 'none';
+                    passwordGroup.style.display = 'none';
+                    loginOptions.style.display = 'none';
+                    usernameInput.removeAttribute('required');
+                    passwordInput.removeAttribute('required');
+                }
+            });
             
             // Login form submit handling
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                const role = document.getElementById('role').value;
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+                const role = roleSelect.value;
                 
-                // Simple validation - in a real app, this would be server-side
-                if ((username === 'admin' && password === 'admin123' && role === 'admin') || 
-                    (username === 'teacher' && password === 'teacher123' && role === 'teacher')) {
-                    
+                // Hide previous errors
+                loginError.style.display = 'none';
+                
+                // Validation based on role
+                let isValid = false;
+                
+                if (role === 'teacher') {
+                    // Teacher can login without credentials
+                    isValid = true;
+                } else if (role === 'admin') {
+                    // Admin needs correct credentials
+                    if (username === 'admin' && password === 'admin123') {
+                        isValid = true;
+                    } else {
+                        loginError.textContent = 'Invalid administrator credentials. Please check your username and password.';
+                        loginError.style.display = 'block';
+                        loginError.style.animation = 'none';
+                        void loginError.offsetWidth; // Trigger reflow
+                        loginError.style.animation = 'shakeError 0.5s ease-in-out';
+                        
+                        // Add vibration effect if supported
+                        if (navigator.vibrate) {
+                            navigator.vibrate([100, 50, 100]);
+                        }
+                        
+                        // Clear password field
+                        passwordInput.value = '';
+                        passwordInput.focus();
+                        return;
+                    }
+                } else {
+                    loginError.textContent = 'Please select a login type.';
+                    loginError.style.display = 'block';
+                    return;
+                }
+                
+                if (isValid) {
                     // Show loader during "authentication"
                     loginContainer.style.display = 'none';
                     loaderContainer.style.display = 'flex';
@@ -1192,12 +1304,14 @@
                             item.classList.remove('disabled');
                         });
                     } else {
+                        // Teachers cannot access admin-only features
                         adminOnlyElements.forEach(item => {
                             item.classList.add('disabled');
                         });
                     }
                     
                     // Simulate loading delay for authentication
+                    const loadingTime = role === 'teacher' ? 1000 : 2000; // Shorter for teacher
                     setTimeout(function() {
                         // Show main interface
                         sidebar.style.display = 'block';
@@ -1226,21 +1340,7 @@
                         setTimeout(() => {
                             logoContainer.style.transform = '';
                         }, 600);
-                    }, 2000);
-                } else {
-                    // Show error for invalid credentials
-                    loginError.style.display = 'block';
-                    loginError.style.animation = 'none';
-                    void loginError.offsetWidth; // Trigger reflow
-                    loginError.style.animation = 'shakeError 0.5s ease-in-out';
-                    
-                    // Add vibration effect if supported
-                    if (navigator.vibrate) {
-                        navigator.vibrate([100, 50, 100]);
-                    }
-                    
-                    // Clear password field
-                    document.getElementById('password').value = '';
+                    }, loadingTime);
                 }
             });
             
@@ -1256,6 +1356,14 @@
                     // Reset form fields
                     loginForm.reset();
                     loginError.style.display = 'none';
+                    roleInfo.style.display = 'none';
+                    usernameGroup.style.display = 'none';
+                    passwordGroup.style.display = 'none';
+                    loginOptions.style.display = 'none';
+                    
+                    // Remove required attributes
+                    usernameInput.removeAttribute('required');
+                    passwordInput.removeAttribute('required');
                     
                     // Hide main interface
                     sidebar.style.display = 'none';
@@ -1421,8 +1529,8 @@
             function switchPage(pageId) {
                 // Check role-based access control
                 if ((pageId === 'broadsheet' || pageId === 'results-analysis') && currentUserRole !== 'admin') {
-                    // Show access denied message or redirect
-                    alert('Access Denied: This feature is only available to administrators.');
+                    // Show custom access denied message instead of alert
+                    showAccessDeniedMessage();
                     return;
                 }
                 
@@ -1515,6 +1623,30 @@
                     }
                 }
             }
+
+            // Custom access denied modal
+            function showAccessDeniedMessage() {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4 text-center">
+                        <div class="text-red-500 text-4xl mb-4">🔒</div>
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Access Denied</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">This feature is only available to administrators.</p>
+                        <button class="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded transition-colors" onclick="this.closest('.fixed').remove()">
+                            OK
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                // Auto-remove after 3 seconds
+                setTimeout(() => {
+                    if (modal.parentNode) {
+                        modal.remove();
+                    }
+                }, 3000);
+            }
             
             // Menu item click handlers
             menuItems.forEach(item => {
@@ -1526,7 +1658,7 @@
                     
                     // Skip if disabled (for teacher trying to access admin features)
                     if (this.classList.contains('disabled')) {
-                        alert('Access Denied: This feature is only available to administrators.');
+                        showAccessDeniedMessage();
                         return;
                     }
                     
@@ -1561,7 +1693,7 @@
                     // Check role-based access control
                     if ((pageId === 'broadsheet' || pageId === 'results-analysis') && currentUserRole !== 'admin') {
                         // Show access denied message
-                        alert('Access Denied: This feature is only available to administrators.');
+                        showAccessDeniedMessage();
                         return;
                     }
                     
@@ -1635,16 +1767,19 @@
             createLoginBubbles();
             
             // Toggle password visibility
-            document.querySelector('.form-icon').addEventListener('click', function() {
-                const passwordInput = document.getElementById('password');
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    this.textContent = '👁️';
-                } else {
-                    passwordInput.type = 'password';
-                    this.textContent = '🔒';
-                }
-            });
+            const passwordIcon = document.querySelector('#passwordGroup .form-icon');
+            if (passwordIcon) {
+                passwordIcon.addEventListener('click', function() {
+                    const passwordInput = document.getElementById('password');
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        this.textContent = '👁️';
+                    } else {
+                        passwordInput.type = 'password';
+                        this.textContent = '🔒';
+                    }
+                });
+            }
             
             // Handle touch events for improved mobile experience
             document.addEventListener('touchstart', function() {
@@ -1654,7 +1789,3 @@
     </script>
 </body>
 </html>
-
-
-
-
